@@ -10,7 +10,12 @@ class Routing {
             get() = if (System.currentTimeMillis() - (currentPressedStationTimestamp?:0) <= BUTTON_TIMEOUT) field else null
 
         fun traceRoute(station: Station, track: Track) {
-            TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+            var i = station.ordinal
+            while (i >= 0) {
+                @Suppress("UNUSED_CHANGED_VALUE") // WTF?! Bug Kotlin 1.2.21
+                output(station + track, i-- == station.ordinal)
+
+            }
         }
 
     }
@@ -28,12 +33,10 @@ enum class Station {
     PLOERMEL
 }
 
-enum class Point(val trace: (Station, Track) -> Boolean?) { // Aiguillage
-    P_1,
-    P_3,
-    P_5,
-    M_1,
-    M_3,
-    M_5,
-    M_7
+operator fun Station.plus(track: Track): Int {
+    return ordinal * Track.values().size + track.ordinal
+}
+
+fun output(pin: Int, value: Boolean) {
+    TODO()
 }
