@@ -1,47 +1,34 @@
-import Button.Companion.MESSAC
-import Button.Companion.PLOERMEL
-import Button.Companion.VOIE_1
-import Button.Companion.VOIE_3
-import Button.Companion.VOIE_5
-import Button.Companion.VOIE_7
+const val BUTTON_TIMEOUT = 2000 // ms
 
-val BUTTON_TIMEOUT = 5000 // ms
-
-fun Int.getButton() = when(this) {
-    1 -> MESSAC
-    2 -> PLOERMEL
-    3 -> VOIE_1
-    4 -> VOIE_3
-    5 -> VOIE_5
-    6 -> VOIE_7
-    else -> throw IllegalArgumentException("Invalid button pin")
-}
-
-open class Button() {
+open class Button {
     companion object {
-        val MESSAC = StationButton(Station.MESSAC)
-        val PLOERMEL = StationButton(Station.PLOERMEL)
-        val VOIE_1 = TrackButton(Track.VOIE_1)
-        val VOIE_3 = TrackButton(Track.VOIE_3)
-        val VOIE_5 = TrackButton(Track.VOIE_5)
-        val VOIE_7 = TrackButton(Track.VOIE_7)
+        val MESSAC = RoutingButton(Station.MESSAC)
+        val PLOERMEL = RoutingButton(Station.PLOERMEL)
+        val VOIE_1 = RoutingButton(Track.VOIE_1)
+        val VOIE_3 = RoutingButton(Track.VOIE_3)
+        val VOIE_5 = RoutingButton(Track.VOIE_5)
+        val VOIE_7 = RoutingButton(Track.VOIE_7)
+        val DEPANNAGE = DepannageButton(Station.PLOERMEL + Track.VOIE_7, false)
     }
 
     open fun onPress() {}
-    open fun onRelease() {}
 }
 
-class StationButton(val gare: Station) : Button() {
+class DepannageButton(private val pointIndex: Int, private val enabledValue: Boolean) : Button() {
     override fun onPress() {
-        Routing.currentPressedStation = gare
+        setPoint(pointIndex, enabledValue)
+        Routing.currentPressedStation = null
     }
 }
 
-class TrackButton(val rail: Track) : Button() {
-    override fun onRelease() {
-        val cps = Routing.currentPressedStation // need to cache it because we're using a dynamic getter -> inconsistent
-        if (cps != null) {
-            Routing.traceRoute(cps, rail)
+class RoutingButton(private val element: Any) : Button() {
+    override fun onPress() {
+        val cps = Routing.currentPressedStation
+        if (cps == null || cps::class == element::class) Routing.currentPressedStation = element
+        else {
+            if (cps is Station && element is Track) Routing.traceRoute(cps, element)
+            else if (cps is Track && element is Station) Routing.traceRoute(element, cps)
+            else println("Error, cps !is track or station $cps")
         }
     }
 }

@@ -1,8 +1,9 @@
+
 class Routing {
     companion object {
 
         private var currentPressedStationTimestamp: Long? = null
-        var currentPressedStation: Station? = null
+        var currentPressedStation: Any? = null
             set(value) {
                 currentPressedStationTimestamp = System.currentTimeMillis()
                 field = value
@@ -10,16 +11,16 @@ class Routing {
             get() = if (System.currentTimeMillis() - (currentPressedStationTimestamp?:0) <= BUTTON_TIMEOUT) field else null
 
         fun traceRoute(station: Station, track: Track) {
-            var i = station.ordinal
+            var i = track.ordinal
             while (i >= 0) {
-                @Suppress("UNUSED_CHANGED_VALUE") // WTF?! Bug Kotlin 1.2.21
-                output(station + track, i-- == station.ordinal)
-
+                setPoint(station + Track.values()[i], i-- == track.ordinal)
             }
         }
 
     }
 }
+
+val points = BooleanArray(8)
 
 enum class Track {
     VOIE_1,
@@ -38,5 +39,10 @@ operator fun Station.plus(track: Track): Int {
 }
 
 fun output(pin: Int, value: Boolean) {
-    TODO()
+    socket.writeTextMessage("$pin $value")
+}
+
+fun setPoint(index: Int, value: Boolean) {
+    points[index] = value
+    output(index, value)
 }
