@@ -24,8 +24,8 @@ class DepannageButton(private val pointIndex: Int, private val enabledValue: Boo
 class RoutingButton(private val element: Any) : Button() {
     override fun onPress() {
         val cps = Routing.currentPressedStation
-        if (cps == null || cps::class == element::class) Routing.currentPressedStation = element
-        else {
+        Routing.currentPressedStation = if (element is Track || cps == null) element else null
+        if (cps != null && cps::class != element::class) {
             if (cps is Station && element is Track) Routing.traceRoute(cps, element)
             else if (cps is Track && element is Station) Routing.traceRoute(element, cps)
             else println("Error, cps !is track or station $cps")
