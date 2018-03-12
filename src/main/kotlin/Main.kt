@@ -1,20 +1,22 @@
-/*
-    when (msg.text()) {
-        "messac" -> Button.MESSAC
-        "ploermel" -> Button.PLOERMEL
-        "voie1" -> Button.VOIE_1
-        "voie3" -> Button.VOIE_3
-        "voie5" -> Button.VOIE_5
-        "voie7" -> Button.VOIE_7
-        else -> null
-    }*/
-
-import io.vertx.core.AbstractVerticle;
+import Button.Companion.DEPANNAGE
+import Button.Companion.MESSAC
+import Button.Companion.PLOERMEL
+import Button.Companion.VOIE_1
+import Button.Companion.VOIE_3
+import Button.Companion.VOIE_5
+import Button.Companion.VOIE_7
+import com.pi4j.io.gpio.GpioController
+import com.pi4j.io.gpio.GpioFactory
+import com.pi4j.io.gpio.GpioPinDigitalOutput
+import com.pi4j.io.gpio.RaspiPin
+import com.pi4j.io.gpio.RaspiPin.*
+import com.pi4j.io.gpio.event.GpioPinListenerDigital
+import io.vertx.core.AbstractVerticle
 import io.vertx.core.Vertx
 import io.vertx.core.http.ServerWebSocket
 
 lateinit var socket: ServerWebSocket
-class WebsocketsClient : AbstractVerticle() {
+object WebsocketsClient : AbstractVerticle() {
 
     @Throws(Exception::class)
     override fun start() {
@@ -24,30 +26,48 @@ class WebsocketsClient : AbstractVerticle() {
                     socket = ws
                     val s = it.toString("UTF-8")
                     when (s) {
-                        "messac" -> Button.MESSAC
-                        "ploermel" -> Button.PLOERMEL
-                        "voie1" -> Button.VOIE_1
-                        "voie3" -> Button.VOIE_3
-                        "voie5" -> Button.VOIE_5
-                        "voie7" -> Button.VOIE_7
-                        "depannage" -> Button.DEPANNAGE
+                        "messac" -> MESSAC
+                        "ploermel" -> PLOERMEL
+                        "voie1" -> VOIE_1
+                        "voie3" -> VOIE_3
+                        "voie5" -> VOIE_5
+                        "voie7" -> VOIE_7
+                        "depannage" -> DEPANNAGE
                         else -> null
                     }?.onPress()
                     if (s == "request points") {
                         Track.values().forEach { track ->
                             Station.values().forEach { station ->
-                                val point = station + track;
+                                val point = station + track
                                 ws.writeTextMessage("$point ${points[point]}")
                             }
                         }
                     }
                 })}
                 .requestHandler { req -> req.response().sendFile(if (req.uri() == "/") "index.html" else req.uri().substring(1)) }
-                .listen(80)
+                .listen(800)
     }
 
 }
 
+val controller: GpioController
+    get() = GpioFactory.getInstance()
+
+val aiguillage_outputs = mutableMapOf<Int, GpioPinDigitalOutput>()
+
 fun main(args: Array<String>) {
-    WebsocketsClient().start()
+    WebsocketsClient.start()
+    mapOf(GPIO_21 to Button.MESSAC, GPIO_22 to PLOERMEL, GPIO_23 to DEPANNAGE, GPIO_07 to VOIE_1, GPIO_00 to VOIE_3, GPIO_02 to VOIE_5, GPIO_03 to VOIE_7).forEach { entry ->
+        val pin = controller.provisionDigitalInputPin(entry.key, entry.value.toString())
+        pin.addListener(GpioPinListenerDigital {
+            if (it.state.isHigh)
+                entry.value.onPress()
+        })
+    }
+
+    listOf(GPIO_04, GPIO_05, GPIO_06, null, GPIO_10, GPIO_11, GPIO_26, GPIO_27).forEachIndexed { i, pin ->
+        if (pin != null)
+            aiguillage_outputs[i] = controller.provisionDigitalOutputPin(pin, "Aiguillage_$i")
+    }
+
 }
