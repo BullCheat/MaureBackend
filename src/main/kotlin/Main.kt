@@ -8,7 +8,6 @@ import Button.Companion.VOIE_7
 import com.pi4j.io.gpio.GpioController
 import com.pi4j.io.gpio.GpioFactory
 import com.pi4j.io.gpio.GpioPinDigitalOutput
-import com.pi4j.io.gpio.RaspiPin
 import com.pi4j.io.gpio.RaspiPin.*
 import com.pi4j.io.gpio.event.GpioPinListenerDigital
 import io.vertx.core.AbstractVerticle
@@ -41,6 +40,14 @@ object WebsocketsClient : AbstractVerticle() {
                                 val point = station + track
                                 ws.writeTextMessage("$point ${points[point]}")
                             }
+                        }
+                    }
+                    if (s.startsWith("light_")) {
+                        try {
+                            val id = s.substring("light_".length).toInt()
+                            lights[id].on = !lights[id].on
+                        } catch (t: Throwable) {
+                            t.printStackTrace()
                         }
                     }
                 })}

@@ -39,7 +39,7 @@ operator fun Station.plus(track: Track): Int {
 }
 
 fun output(pin: Int, value: Boolean) {
-    socket.writeTextMessage("$pin $value")
+    socket.writeTextMessage("point $pin $value")
     aiguillage_outputs[pin]?.apply { if (value) high() else low() }
 }
 
