@@ -15,6 +15,7 @@ class Routing {
             while (i >= 0) {
                 setPoint(station + Track.values()[i], i-- == track.ordinal)
             }
+            "$station -> $track" toLCD 40 + 20*station.ordinal
         }
 
     }

@@ -9,7 +9,9 @@ import com.pi4j.io.gpio.GpioController
 import com.pi4j.io.gpio.GpioFactory
 import com.pi4j.io.gpio.GpioPinDigitalOutput
 import com.pi4j.io.gpio.RaspiPin.*
+import com.pi4j.io.gpio.event.GpioPinListenerAnalog
 import com.pi4j.io.gpio.event.GpioPinListenerDigital
+import com.pi4j.io.serial.*
 import io.vertx.core.AbstractVerticle
 import io.vertx.core.Vertx
 import io.vertx.core.http.ServerWebSocket
@@ -71,6 +73,8 @@ fun main(args: Array<String>) {
                 entry.value.onPress()
         })
     }
+
+    serialInit()
 
     listOf(GPIO_04, GPIO_05, GPIO_06, null, GPIO_10, GPIO_11, GPIO_26, GPIO_27).forEachIndexed { i, pin ->
         if (pin != null)
