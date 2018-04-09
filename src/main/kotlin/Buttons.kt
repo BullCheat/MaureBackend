@@ -1,27 +1,25 @@
 const val BUTTON_TIMEOUT = 2000 // ms
 
-open class Button {
-    companion object {
-        val MESSAC = RoutingButton(Station.MESSAC)
-        val PLOERMEL = RoutingButton(Station.PLOERMEL)
-        val VOIE_1 = RoutingButton(Track.VOIE_1)
-        val VOIE_3 = RoutingButton(Track.VOIE_3)
-        val VOIE_5 = RoutingButton(Track.VOIE_5)
-        val VOIE_7 = RoutingButton(Track.VOIE_7)
-        val DEPANNAGE = DepannageButton(Station.PLOERMEL + Track.VOIE_7, false)
-    }
-
+sealed class Button {
     open fun onPress() {}
 }
 
-class DepannageButton(private val pointIndex: Int, private val enabledValue: Boolean) : Button() {
+object MESSAC : RoutingButton(Station.MESSAC)
+object PLOERMEL : RoutingButton(Station.PLOERMEL)
+object VOIE_1 : RoutingButton(Track.VOIE_1)
+object VOIE_3 : RoutingButton(Track.VOIE_3)
+object VOIE_5 : RoutingButton(Track.VOIE_5)
+object VOIE_7 : RoutingButton(Track.VOIE_7)
+object DEPANNAGE : Button() {
+    private val pointIndex: Int = Station.PLOERMEL + Track.VOIE_7
+    private val isEnabled = false
     override fun onPress() {
-        setPoint(pointIndex, enabledValue)
+        setPoint(pointIndex, isEnabled)
         Routing.currentPressedStation = null
     }
 }
 
-class RoutingButton(private val element: Any) : Button() {
+abstract class RoutingButton(private val element: Any) : Button() {
     override fun onPress() {
         val cps = Routing.currentPressedStation
         Routing.currentPressedStation = if (element is Track || cps == null) element else null

@@ -1,22 +1,24 @@
+import com.google.common.io.ByteStreams
 import com.pi4j.io.serial.Baud
 import com.pi4j.io.serial.SerialConfig
 import com.pi4j.io.serial.SerialDataEventListener
 import com.pi4j.io.serial.SerialFactory
+import java.io.EOFException
 
 private val serial = SerialFactory.createInstance()
 
 internal fun serialInit() {
     serial.addListener(SerialDataEventListener {
-        val b = it.bytes
-        var index = -1
-        for (octet in b) {
-            if (octet == 0xFF.toByte()) index = 0;
-            else when (++index) {
-                1 -> A
-                2 -> B
-                else -> null
-            }?.speed = octet.toInt() and 0xFF
-        }
+        val reader = ByteStreams.newDataInput(it.bytes)
+        try {
+            while (true) {
+                while (reader.readUnsignedByte() != 0);
+                reader.readUnsignedByte().apply {
+
+                }
+            }
+
+        } catch (ignored: EOFException) {}
     })
 
     serial.open(SerialConfig().apply {
@@ -27,4 +29,8 @@ internal fun serialInit() {
 
 infix fun String.toLCD(index : Int) {
     serial.outputStream.write(byteArrayOf('T'.toByte(), index.toByte()) + toByteArray())
+}
+
+infix fun Boolean.toPin(index: Int) {
+    serial.outputStream.write(byteArrayOf('O'.toByte(), ((index shl 1) or if (this) 1 else 0).toByte()))
 }
