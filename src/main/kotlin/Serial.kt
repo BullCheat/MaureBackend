@@ -13,8 +13,13 @@ internal fun serialInit() {
         try {
             while (true) {
                 while (reader.readUnsignedByte() != 0);
-                reader.readUnsignedByte().apply {
-
+                val c = reader.readUnsignedByte().toChar()
+                if (c == 'T') {
+                    val channel = reader.readUnsignedByte()
+                    val value = reader.readUnsignedByte()
+                    setLocoSpeed(channel, value)
+                } else if (c == 'B') {
+                    buttons[reader.readUnsignedByte()].onPress()
                 }
             }
 
@@ -28,9 +33,9 @@ internal fun serialInit() {
 }
 
 infix fun String.toLCD(index : Int) {
-    serial.outputStream.write(byteArrayOf('T'.toByte(), index.toByte()) + toByteArray())
+    serial.outputStream.write(byteArrayOf(0, 'T'.toByte(), index.toByte()) + toByteArray())
 }
 
 infix fun Boolean.toPin(index: Int) {
-    serial.outputStream.write(byteArrayOf('O'.toByte(), ((index shl 1) or if (this) 1 else 0).toByte()))
+    serial.outputStream.write(byteArrayOf(0, 'O'.toByte(), ((index shl 1) or if (this) 1 else 0).toByte()))
 }

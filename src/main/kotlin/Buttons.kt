@@ -1,5 +1,7 @@
 const val BUTTON_TIMEOUT = 2000 // ms
 
+val buttons = listOf(MESSAC, PLOERMEL, VOIE_1, VOIE_3, VOIE_5, VOIE_7, DEPANNAGE)
+
 sealed class Button {
     open fun onPress() {}
 }
