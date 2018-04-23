@@ -1,3 +1,6 @@
+import io.vertx.core.AbstractVerticle
+import io.vertx.core.Vertx
+
 object Websocket : AbstractVerticle() {
 
     @Throws(Exception::class)
