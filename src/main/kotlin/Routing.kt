@@ -15,6 +15,7 @@ class Routing {
             while (i >= 0) {
                 setPoint(station + Track.values()[i], i-- == track.ordinal)
             }
+            // Notify LCD
             "$station -> $track" toLCD 40 + 20*station.ordinal
         }
 
@@ -39,12 +40,9 @@ operator fun Station.plus(track: Track): Int {
     return ordinal * Track.values().size + track.ordinal
 }
 
-fun output(pin: Int, value: Boolean) {
-    socket.writeTextMessage("point $pin $value")
-    value.toPin(pin + 22)
-}
 
 fun setPoint(index: Int, value: Boolean) {
     points[index] = value
-    output(index, value)
+    socket.writeTextMessage("point $index $value")
+    value.toPin(index + 22)
 }
