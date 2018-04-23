@@ -37,7 +37,7 @@ object Websocket : AbstractVerticle() {
                         }
                     }
                 })}
-                .requestHandler { req -> req.response().sendFile(if (req.uri() == "/") "index.html" else req.uri().substring(1)) }
+                .requestHandler { req -> req.response().sendFile("html/" + if (req.uri() == "/") "index.html" else req.uri().substring(1)) }
                 .listen(800)
     }
 
