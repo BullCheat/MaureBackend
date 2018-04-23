@@ -15,6 +15,8 @@ class Routing {
             while (i >= 0) {
                 setPoint(station + Track.values()[i], i-- == track.ordinal)
             }
+            val size = lights.size/2
+            (if (station == Station.MESSAC) lights.take(size) else lights.takeLast(size)).forEach { it.on = false }
             // Notify LCD
             "$station -> $track" toLCD 40 + 20*station.ordinal
         }

@@ -38,7 +38,7 @@ object Websocket : AbstractVerticle() {
                     }
                 })}
                 .requestHandler { req -> req.response().sendFile("html/" + if (req.uri() == "/") "index.html" else req.uri().substring(1)) }
-                .listen(800)
+                .listen(PORT)
     }
 
 }

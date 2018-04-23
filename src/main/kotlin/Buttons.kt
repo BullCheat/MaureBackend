@@ -26,8 +26,9 @@ abstract class RoutingButton(private val element: Any) : Button() {
     override fun onPress() {
         val cps = Routing.currentPressedStation
         Routing.currentPressedStation = if (element is Track || cps == null) element else null
-        val a = cps as? Station ?: element as? Station?: return println("Error, cps and element !is station $cps $element")
-        val b = cps as? Track ?: element as? Track?: return println("Error, cps and element !is station $cps $element")
+        if (cps == null) return
+        val a = cps as? Station ?: element as? Station?: return println("Invalid action $cps -> $element")
+        val b = cps as? Track ?: element as? Track?: return println("Invalid action $cps -> $element")
         Routing.traceRoute(a, b)
     }
 }
