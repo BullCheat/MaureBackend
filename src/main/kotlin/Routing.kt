@@ -46,5 +46,5 @@ operator fun Station.plus(track: Track): Int {
 fun setPoint(index: Int, value: Boolean) {
     points[index] = value
     socket.writeTextMessage("point $index $value")
-    value.toPin(index + 22)
+    value.toPin((if (index > 3) index - 1 else index) + 22)
 }
