@@ -1,5 +1,5 @@
 
-val lights = Array(10, {Light(it, it + 29)}) // TODO pin
+val lights = Array(8, {Light(it, it + 29)})
 
 class Light(private val id: Int, private val pin: Int) {
     var on = false
